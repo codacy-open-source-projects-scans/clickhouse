@@ -202,12 +202,36 @@ Result:
 
 Returns the type name of the passed argument.
 
-If `NULL` is passed, then the function returns type `Nullable(Nothing)`, which corresponds to ClickHouse's internal `NULL` representation.
+If `NULL` is passed, the function returns type `Nullable(Nothing)`, which corresponds to ClickHouse's internal `NULL` representation.
 
 **Syntax**
 
 ```sql
-toTypeName(x)
+toTypeName(value)
+```
+
+**Arguments**
+
+- `value` — A value of arbitrary type.
+
+**Returned value**
+
+- The data type name of the input value. [String](../data-types/string.md).
+
+**Example**
+
+Query:
+
+```sql
+SELECT toTypeName(123);
+```
+
+Result:
+
+```response
+┌─toTypeName(123)─┐
+│ UInt8           │
+└─────────────────┘
 ```
 
 ## blockSize {#blockSize}
@@ -498,6 +522,26 @@ Useful in table engine parameters of `CREATE TABLE` queries where you need to sp
 
 ```sql
 currentDatabase()
+```
+
+**Returned value**
+
+- Returns the current database name. [String](../data-types/string.md).
+
+**Example**
+
+Query:
+
+```sql
+SELECT currentDatabase()
+```
+
+Result:
+
+```response
+┌─currentDatabase()─┐
+│ default           │
+└───────────────────┘
 ```
 
 ## currentUser {#currentUser}
@@ -1773,7 +1817,7 @@ toColumnTypeName(value)
 
 **Example**
 
-Difference between `toTypeName ' and ' toColumnTypeName`:
+Difference between `toTypeName` and `toColumnTypeName`:
 
 ```sql
 SELECT toTypeName(CAST('2018-01-01 01:02:03' AS DateTime))
