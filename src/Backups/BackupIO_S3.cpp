@@ -36,6 +36,27 @@ namespace Setting
     extern const SettingsUInt64 s3_max_redirects;
 }
 
+namespace S3AuthSetting
+{
+    extern const S3AuthSettingsString access_key_id;
+    extern const S3AuthSettingsUInt64 expiration_window_seconds;
+    extern const S3AuthSettingsBool no_sign_request;
+    extern const S3AuthSettingsString region;
+    extern const S3AuthSettingsString secret_access_key;
+    extern const S3AuthSettingsString server_side_encryption_customer_key_base64;
+    extern const S3AuthSettingsBool use_environment_credentials;
+    extern const S3AuthSettingsBool use_insecure_imds_request;
+}
+
+namespace S3RequestSetting
+{
+    extern const S3RequestSettingsBool allow_native_copy;
+    extern const S3RequestSettingsString storage_class_name;
+    extern const S3RequestSettingsUInt64 http_max_fields;
+    extern const S3RequestSettingsUInt64 http_max_field_name_size;
+    extern const S3RequestSettingsUInt64 http_max_field_value_size;
+}
+
 namespace ErrorCodes
 {
     extern const int S3_ERROR;
@@ -55,7 +76,7 @@ namespace
         HTTPHeaderEntries headers;
         if (access_key_id.empty())
         {
-            credentials = Aws::Auth::AWSCredentials(settings.auth_settings.access_key_id, settings.auth_settings.secret_access_key);
+            credentials = Aws::Auth::AWSCredentials(settings.auth_settings[S3AuthSetting::access_key_id], settings.auth_settings[S3AuthSetting::secret_access_key]);
             headers = settings.auth_settings.headers;
         }
 
@@ -64,7 +85,7 @@ namespace
         const Settings & local_settings = context->getSettingsRef();
 
         S3::PocoHTTPClientConfiguration client_configuration = S3::ClientFactory::instance().createClientConfiguration(
-            settings.auth_settings.region,
+            settings.auth_settings[S3AuthSetting::region],
             context->getRemoteHostFilter(),
             static_cast<unsigned>(local_settings[Setting::s3_max_redirects]),
             static_cast<unsigned>(local_settings[Setting::backup_restore_s3_retry_attempts]),
@@ -82,6 +103,9 @@ namespace
         client_configuration.requestTimeoutMs = 60 * 60 * 1000;
         client_configuration.http_keep_alive_timeout = S3::DEFAULT_KEEP_ALIVE_TIMEOUT;
         client_configuration.http_keep_alive_max_requests = S3::DEFAULT_KEEP_ALIVE_MAX_REQUESTS;
+        client_configuration.http_max_fields = request_settings[S3RequestSetting::http_max_fields];
+        client_configuration.http_max_field_name_size = request_settings[S3RequestSetting::http_max_field_name_size];
+        client_configuration.http_max_field_value_size = request_settings[S3RequestSetting::http_max_field_value_size];
 
         S3::ClientSettings client_settings{
             .use_virtual_addressing = s3_uri.is_virtual_hosted_style,
@@ -95,15 +119,15 @@ namespace
             client_settings,
             credentials.GetAWSAccessKeyId(),
             credentials.GetAWSSecretKey(),
-            settings.auth_settings.server_side_encryption_customer_key_base64,
+            settings.auth_settings[S3AuthSetting::server_side_encryption_customer_key_base64],
             settings.auth_settings.server_side_encryption_kms_config,
             std::move(headers),
             S3::CredentialsConfiguration
             {
-                settings.auth_settings.use_environment_credentials,
-                settings.auth_settings.use_insecure_imds_request,
-                settings.auth_settings.expiration_window_seconds,
-                settings.auth_settings.no_sign_request
+                settings.auth_settings[S3AuthSetting::use_environment_credentials],
+                settings.auth_settings[S3AuthSetting::use_insecure_imds_request],
+                settings.auth_settings[S3AuthSetting::expiration_window_seconds],
+                settings.auth_settings[S3AuthSetting::no_sign_request]
             });
     }
 
@@ -143,7 +167,7 @@ BackupReaderS3::BackupReaderS3(
     }
 
     s3_settings.request_settings.updateFromSettings(context_->getSettingsRef(), /* if_changed */true);
-    s3_settings.request_settings.allow_native_copy = allow_s3_native_copy;
+    s3_settings.request_settings[S3RequestSetting::allow_native_copy] = allow_s3_native_copy;
 
     client = makeS3Client(s3_uri_, access_key_id_, secret_access_key_, s3_settings, context_);
 
@@ -242,8 +266,8 @@ BackupWriterS3::BackupWriterS3(
     }
 
     s3_settings.request_settings.updateFromSettings(context_->getSettingsRef(), /* if_changed */true);
-    s3_settings.request_settings.allow_native_copy = allow_s3_native_copy;
-    s3_settings.request_settings.storage_class_name = storage_class_name;
+    s3_settings.request_settings[S3RequestSetting::allow_native_copy] = allow_s3_native_copy;
+    s3_settings.request_settings[S3RequestSetting::storage_class_name] = storage_class_name;
 
     client = makeS3Client(s3_uri_, access_key_id_, secret_access_key_, s3_settings, context_);
     if (auto blob_storage_system_log = context_->getBlobStorageLog())

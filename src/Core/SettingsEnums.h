@@ -12,7 +12,9 @@
 #include <Core/ShortCircuitFunctionEvaluation.h>
 #include <Core/StreamingHandleErrorMode.h>
 #include <Formats/FormatSettings.h>
-#include <IO/ReadSettings.h>
+#include <IO/DistributedCacheLogMode.h>
+#include <IO/DistributedCachePoolBehaviourOnLimit.h>
+#include <IO/ReadMethod.h>
 #include <Parsers/IdentifierQuotingStyle.h>
 #include <QueryPipeline/SizeLimits.h>
 #include <Common/ShellCommandSettings.h>
@@ -126,9 +128,7 @@ constexpr auto getEnumValues();
 DECLARE_SETTING_ENUM(LoadBalancing)
 
 DECLARE_SETTING_ENUM(JoinStrictness)
-
 DECLARE_SETTING_MULTI_ENUM(JoinAlgorithm)
-
 
 /// Which rows should be included in TOTALS.
 enum class TotalsMode : uint8_t
@@ -358,5 +358,12 @@ enum class GroupArrayActionWhenLimitReached : uint8_t
 DECLARE_SETTING_ENUM(GroupArrayActionWhenLimitReached)
 
 DECLARE_SETTING_ENUM(MergeSelectorAlgorithm)
+
+enum class DatabaseIcebergCatalogType : uint8_t
+{
+    REST,
+};
+
+DECLARE_SETTING_ENUM(DatabaseIcebergCatalogType)
 
 }
