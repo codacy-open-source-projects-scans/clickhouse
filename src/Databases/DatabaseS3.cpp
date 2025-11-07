@@ -98,7 +98,7 @@ bool DatabaseS3::checkUrl(const std::string & url, ContextPtr context_, bool thr
 bool DatabaseS3::isTableExist(const String & name, ContextPtr context_) const
 {
     std::lock_guard lock(mutex);
-    if (loaded_tables.find(name) != loaded_tables.end())
+    if (loaded_tables.contains(name))
         return true;
 
     return checkUrl(getFullUrl(name), context_, false);
@@ -138,7 +138,7 @@ StoragePtr DatabaseS3::getTableImpl(const String & name, ContextPtr context_) co
         return nullptr;
 
     /// TableFunctionS3 throws exceptions, if table cannot be created.
-    auto table_storage = table_function->execute(function, context_, name);
+    auto table_storage = table_function->execute(function, context_, name, /*cached_columns_=*/{}, /*use_global_context=*/false, /*is_insert_query=*/true);
     if (table_storage)
         addTable(name, table_storage);
 

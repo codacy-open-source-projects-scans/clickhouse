@@ -97,7 +97,6 @@ public:
     bool if_not_exists{false};
     bool is_ordinary_view{false};
     bool is_materialized_view{false};
-    bool is_live_view{false};
     bool is_window_view{false};
     bool is_time_series_table{false}; /// CREATE TABLE ... ENGINE=TimeSeries() ...
     bool is_populate{false};
@@ -107,6 +106,7 @@ public:
     bool has_uuid{false}; // CREATE TABLE x UUID '...'
 
     ASTColumns * columns_list = nullptr;
+    ASTExpressionList * aliases_list = nullptr; /// Aliases such as "(a, b)" in "CREATE VIEW my_view (a, b) AS SELECT 1, 2"
     ASTStorage * storage = nullptr;
 
     ASTPtr watermark_function;
@@ -151,9 +151,11 @@ public:
         return removeOnCluster<ASTCreateQuery>(clone(), params.default_database);
     }
 
-    bool isView() const { return is_ordinary_view || is_materialized_view || is_live_view || is_window_view; }
+    bool isView() const { return is_ordinary_view || is_materialized_view || is_window_view; }
 
     bool isParameterizedView() const;
+
+    NameToNameMap getQueryParameters() const;
 
     bool supportSQLSecurity() const { return is_ordinary_view || is_materialized_view; }
 
@@ -186,6 +188,7 @@ protected:
     void forEachPointerToChild(std::function<void(void**)> f) override
     {
         f(reinterpret_cast<void **>(&columns_list));
+        f(reinterpret_cast<void **>(&aliases_list));
         f(reinterpret_cast<void **>(&storage));
         f(reinterpret_cast<void **>(&targets));
         f(reinterpret_cast<void **>(&as_table_function));

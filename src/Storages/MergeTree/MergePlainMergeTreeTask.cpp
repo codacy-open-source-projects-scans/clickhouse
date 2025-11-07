@@ -7,6 +7,7 @@
 #include <Common/ProfileEventsScope.h>
 #include <Common/ProfileEvents.h>
 #include <Common/ThreadFuzzer.h>
+#include <Interpreters/Context.h>
 
 
 namespace DB
@@ -39,7 +40,7 @@ bool MergePlainMergeTreeTask::executeStep()
     std::optional<ThreadGroupSwitcher> switcher;
     if (merge_list_entry)
     {
-        switcher.emplace((*merge_list_entry)->thread_group);
+        switcher.emplace((*merge_list_entry)->thread_group, "", /*allow_existing_group*/ true);
     }
 
     switch (state)
@@ -179,12 +180,20 @@ void MergePlainMergeTreeTask::finish()
         ThreadFuzzer::maybeInjectSleep();
         ThreadFuzzer::maybeInjectMemoryLimitException();
     }
+
+    merge_mutate_entry->finalize();
 }
 
 void MergePlainMergeTreeTask::cancel() noexcept
 {
     if (merge_task)
         merge_task->cancel();
+
+    if (new_part)
+        new_part->removeIfNeeded();
+
+    if (merge_mutate_entry)
+        merge_mutate_entry->finalize();
 }
 
 ContextMutablePtr MergePlainMergeTreeTask::createTaskContext() const
