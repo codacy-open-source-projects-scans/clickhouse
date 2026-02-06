@@ -13,6 +13,8 @@
 
 #include <DataTypes/DataTypeNullable.h>
 
+#include <IO/ReadHelpers.h>
+
 
 namespace DB
 {
@@ -151,11 +153,22 @@ void SQLiteSource::insertValue(IColumn & column, ExternalResultDescription::Valu
         case ValueType::vtFloat64:
             assert_cast<ColumnFloat64 &>(column).insertValue(sqlite3_column_double(compiled_statement.get(), idx));
             break;
-        default:
+        case ValueType::vtUUID:
+        {
+            const char * data = reinterpret_cast<const char *>(sqlite3_column_text(compiled_statement.get(), idx));
+            int len = sqlite3_column_bytes(compiled_statement.get(), idx);
+            assert_cast<ColumnUUID &>(column).insert(parse<UUID>(data, len));
+            break;
+        }
+        case ValueType::vtString:
+        {
             const char * data = reinterpret_cast<const char *>(sqlite3_column_text(compiled_statement.get(), idx));
             int len = sqlite3_column_bytes(compiled_statement.get(), idx);
             assert_cast<ColumnString &>(column).insertData(data, len);
             break;
+        }
+        default:
+            throw Exception(ErrorCodes::SQLITE_ENGINE_ERROR, "Unsupported type for SQLite column");
     }
 }
 
