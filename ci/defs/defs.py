@@ -441,6 +441,19 @@ LLVM_ARTIFACTS_LIST = (
     LLVM_FT_ARTIFACTS_LIST + LLVM_IT_ARTIFACTS_LIST + [ArtifactNames.LLVM_COVERAGE_FILE]
 )
 
+BINARIES_WITH_LONG_RETENTION = [
+    ArtifactNames.CH_AMD_DEBUG,
+    ArtifactNames.CH_AMD_RELEASE,
+    ArtifactNames.CH_AMD_ASAN,
+    ArtifactNames.CH_AMD_TSAN,
+    ArtifactNames.CH_AMD_MSAN,
+    ArtifactNames.CH_AMD_UBSAN,
+    ArtifactNames.CH_AMD_BINARY,
+    ArtifactNames.CH_ARM_RELEASE,
+    ArtifactNames.CH_ARM_ASAN,
+    ArtifactNames.CH_ARM_TSAN,
+]
+
 
 class ArtifactConfigs:
     clickhouse_binaries = Artifact.Config(
