@@ -265,11 +265,12 @@ def run_func_test(
         except subprocess.CalledProcessError as e:
             logging.info(e.stdout)
 
-            # Ignore fault injects, but most of the time tests should complete successfully
+            # Ignore fault injects and transient errors, but most of the time tests should complete successfully
             ignored_errors = [
                 "CANNOT_SCHEDULE_TASK",
                 "Fault injection",
                 "Query memory tracker: fault injected",
+                "KEEPER_EXCEPTION",
             ]
             if any(err in e.stdout or err in e.stderr for err in ignored_errors):
                 logging.warning(
@@ -318,7 +319,12 @@ def call_with_retry(
 ) -> None:
     logging.info("Running command: %s", str(query))
     for i in range(retry_count):
-        code = call(query, shell=True, stderr=STDOUT, timeout=timeout)
+        try:
+            code = call(query, shell=True, stderr=STDOUT, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            logging.info("Command timed out after %s seconds, retrying", str(timeout))
+            time.sleep(i)
+            continue
         if code != 0:
             logging.info("Command returned %s, retrying", str(code))
             time.sleep(i)

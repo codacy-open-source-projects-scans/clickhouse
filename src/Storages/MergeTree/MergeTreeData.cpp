@@ -835,6 +835,7 @@ ConditionSelectivityEstimatorPtr MergeTreeData::getConditionSelectivityEstimator
     {
         try
         {
+            auto parts_lock = readLockParts();
             auto stats = part.data_part->loadStatistics();
             estimator_builder.markDataPart(part.data_part);
             for (const auto & stat : stats)
@@ -2608,6 +2609,7 @@ try
     {
         try
         {
+            auto parts_lock = readLockParts();
             auto stats = data_part->loadStatistics();
             estimator_builder.markDataPart(data_part);
             for (const auto & stat : stats)
