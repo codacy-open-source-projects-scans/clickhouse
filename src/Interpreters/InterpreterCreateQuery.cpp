@@ -784,9 +784,13 @@ InterpreterCreateQuery::TableProperties InterpreterCreateQuery::getTableProperti
         }
 
         if (create.columns_list->projections)
-            for (const auto & projection_ast : create.columns_list->projections->children)
+            for (auto & projection_ast : create.columns_list->projections->children)
             {
                 auto projection = ProjectionDescription::getProjectionFromAST(projection_ast, properties.columns, getContext());
+                /// Replace the original AST with the normalized one (e.g., positional GROUP BY arguments
+                /// like `GROUP BY 1, 2` are rewritten to use actual column names). This ensures that
+                /// the stored table metadata uses resolved names and can be loaded on server restart.
+                projection_ast = projection.definition_ast;
                 properties.projections.add(std::move(projection));
             }
 
