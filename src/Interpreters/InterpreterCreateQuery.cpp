@@ -735,7 +735,7 @@ ConstraintsDescription InterpreterCreateQuery::getConstraintsDescription(
 
 
 InterpreterCreateQuery::TableProperties InterpreterCreateQuery::getTablePropertiesAndNormalizeCreateQuery(
-    ASTCreateQuery & create, LoadingStrictnessLevel mode) const
+    ASTCreateQuery & create, LoadingStrictnessLevel mode)
 {
     /// Set the table engine if it was not specified explicitly.
     setEngine(create);
