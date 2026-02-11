@@ -1400,6 +1400,10 @@ It helps to avoid unnecessary data copy during formatting.
     DECLARE(Bool, enable_parsing_to_custom_serialization, true, R"(
 If true then data can be parsed directly to columns with custom serialization (e.g. Sparse) according to hints for serialization got from the table.
 )", 0) \
+    DECLARE(Bool, ignore_format_null_for_explain, true, R"(
+If enabled, `FORMAT Null` will be ignored for `EXPLAIN` queries and default output format will be used instead.
+When disabled, `EXPLAIN` queries with `FORMAT Null` will produce no output (backward compatible behavior).
+)", 0) \
     \
     DECLARE(Bool, merge_tree_use_v1_object_and_dynamic_serialization, false, R"(
 When enabled, V1 serialization version of JSON and Dynamic types will be used in MergeTree instead of V2. Changing this setting takes affect only after server restart.
@@ -5154,6 +5158,14 @@ Whether to delete all iceberg files on drop or not.
 )", 0) \
     DECLARE(Bool, use_iceberg_metadata_files_cache, true, R"(
 If turned on, iceberg table function and iceberg storage may utilize the iceberg metadata files cache.
+
+Possible values:
+
+- 0 - Disabled
+- 1 - Enabled
+)", 0) \
+    DECLARE(Bool, use_parquet_metadata_cache, true, R"(
+If turned on, parquet format may utilize the parquet metadata cache.
 
 Possible values:
 

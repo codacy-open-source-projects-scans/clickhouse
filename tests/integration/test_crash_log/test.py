@@ -57,13 +57,16 @@ def test_crash_log_synchronous(started_node):
 
 
 @pytest.mark.parametrize(
-    "failpoint",
+    "failpoint, trace_column",
     [
-        "terminate_with_exception",
-        "terminate_with_std_exception",
+        ("terminate_with_exception", "current_exception_trace_full"),
+        ("terminate_with_std_exception", "current_exception_trace_full"),
+        ("terminate_with_exception", "trace_full"),
+        ("terminate_with_std_exception", "trace_full"),
+        ("libcxx_hardening_out_of_bounds_assertion", "trace_full"),
     ]
 )
-def test_crash_log_extra_fields(started_node, failpoint):
+def test_crash_log_extra_fields(started_node, failpoint, trace_column):
     started_node.query("TRUNCATE TABLE IF EXISTS system.crash_log")
     started_node.query(f"SYSTEM ENABLE FAILPOINT {failpoint}")
     started_node.query("SELECT 1", ignore_error=True)
@@ -71,7 +74,7 @@ def test_crash_log_extra_fields(started_node, failpoint):
     started_node.restart_clickhouse()
 
     assert started_node.query(
-        """
+        f"""
         SELECT
             count()
         FROM system.crash_log
@@ -81,7 +84,7 @@ def test_crash_log_extra_fields(started_node, failpoint):
             AND signal_description = 'Sent by tkill.'
             AND fault_access_type = ''
             AND fault_address IS NULL
-            AND arrayExists(x -> x LIKE '%executeQuery%', current_exception_trace_full)
+            AND arrayExists(x -> x LIKE '%executeQuery%', {trace_column})
             AND query = 'SELECT 1'
             AND length(git_hash) > 0
             AND length(architecture) > 0

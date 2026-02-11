@@ -2315,7 +2315,7 @@ BlockIO InterpreterCreateQuery::fillTableIfNeeded(const ASTCreateQuery & create)
     if (create.is_clone_as && !as_table_saved.empty() && !create.is_create_empty && !create.is_ordinary_view
         && (!(create.is_materialized_view || create.is_window_view) || create.is_populate))
     {
-        String as_database_name = getContext()->resolveDatabase(create.as_database);
+        String as_database_name = getContext()->resolveDatabase(as_database_saved);
 
         auto partition = make_intrusive<ASTPartition>();
         partition->all = true;

@@ -391,30 +391,34 @@ bool RestCatalog::empty() const
 DB::Names RestCatalog::getTables() const
 {
     auto & pool = getContext()->getIcebergCatalogThreadpool();
-    DB::ThreadPoolCallbackRunnerLocal<void> runner(pool, DB::ThreadName::DATALAKE_REST_CATALOG);
-
     DB::Names tables;
     std::mutex mutex;
 
-    auto execute_for_each_namespace = [&](const std::string & current_namespace)
     {
-        runner.enqueueAndKeepTrack(
-        [=, &tables, &mutex, this]
+        /// Ensure tables and mutex (capture by reference) outlive runner
+        DB::ThreadPoolCallbackRunnerLocal<void> runner(pool, DB::ThreadName::DATALAKE_REST_CATALOG);
+
+        auto execute_for_each_namespace = [&](const std::string & current_namespace)
         {
-            auto tables_in_namespace = getTables(current_namespace);
-            std::lock_guard lock(mutex);
-            std::move(tables_in_namespace.begin(), tables_in_namespace.end(), std::back_inserter(tables));
-        });
-    };
+            runner.enqueueAndKeepTrack(
+            [=, &tables, &mutex, this]
+            {
+                auto tables_in_namespace = getTables(current_namespace);
+                std::lock_guard lock(mutex);
+                std::move(tables_in_namespace.begin(), tables_in_namespace.end(), std::back_inserter(tables));
+            });
+        };
 
-    Namespaces namespaces;
-    getNamespacesRecursive(
-        /* base_namespace */"", /// Empty base namespace means starting from root.
-        namespaces,
-        /* stop_condition */{},
-        /* execute_func */execute_for_each_namespace);
+        Namespaces namespaces;
+        getNamespacesRecursive(
+            /* base_namespace */"", /// Empty base namespace means starting from root.
+            namespaces,
+            /* stop_condition */{},
+            /* execute_func */execute_for_each_namespace);
 
-    runner.waitForAllToFinishAndRethrowFirstError();
+        runner.waitForAllToFinishAndRethrowFirstError();
+    }
+
     return tables;
 }
 
