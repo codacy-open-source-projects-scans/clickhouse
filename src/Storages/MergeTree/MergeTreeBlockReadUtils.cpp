@@ -174,10 +174,21 @@ NameSet injectRequiredColumns(
         */
     if (!have_at_least_one_physical_column)
     {
-        /// Use part's own columns to find the minimum size column.
-        /// This ensures we find a column that actually exists in this part,
-        /// even if the table metadata has changed (e.g., all columns were dropped and new ones added).
-        const auto & available_columns = data_part_info_for_reader.getColumns();
+        /// Use the intersection of part columns and metadata columns to find the minimum size column.
+        /// The column must exist both physically in the part (to be readable) and in the current metadata
+        /// (to be resolvable by the StorageSnapshot). This handles cases where the table schema has changed
+        /// since the part was created: columns may have been added (not in the part) or dropped (not in metadata).
+        const auto & part_columns = data_part_info_for_reader.getColumns();
+        NamesAndTypesList available_columns;
+        for (const auto & column : part_columns)
+        {
+            if (storage_snapshot->tryGetColumn(options, column.name))
+                available_columns.push_back(column);
+        }
+
+        if (available_columns.empty())
+            available_columns = part_columns;
+
         const auto minimum_size_column_name = data_part_info_for_reader.getColumnNameWithMinimumCompressedSize(available_columns);
         columns.push_back(minimum_size_column_name);
         /// correctly report added column
