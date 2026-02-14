@@ -147,8 +147,7 @@ static struct InitFiu
     REGULAR(rmt_delay_execute_drop_range) \
     REGULAR(rmt_delay_commit_part) \
     ONCE(local_object_storage_network_error_during_remove) \
-    ONCE(parallel_replicas_check_read_mode_always)\
-    REGULAR(lightweight_show_tables)
+    ONCE(parallel_replicas_check_read_mode_always)
 
 namespace FailPoints
 {

@@ -147,7 +147,7 @@ common_stress_job_config = Job.Config(
 common_integration_test_job_config = Job.Config(
     name=JobNames.INTEGRATION,
     runs_on=[],  # from parametrize
-    command="python3 ./ci/jobs/integration_test_job.py --options '{PARAMETER}'", # use --session-timeout 60 to debug
+    command="python3 ./ci/jobs/integration_test_job.py --options '{PARAMETER}'",
     digest_config=Job.CacheDigestConfig(
         include_paths=[
             "./ci/jobs/integration_test_job.py",
@@ -1183,7 +1183,10 @@ class JobConfigs:
             ArtifactNames.UNITTEST_LLVM_COVERAGE,
             *LLVM_ARTIFACTS_LIST,
         ],
-        provides=[ArtifactNames.LLVM_COVERAGE_HTML_REPORT, ArtifactNames.LLVM_COVERAGE_INFO_FILE],
+        provides=[
+            ArtifactNames.LLVM_COVERAGE_HTML_REPORT,
+            ArtifactNames.LLVM_COVERAGE_INFO_FILE,
+        ],
         command="python3 ./ci/jobs/merge_llvm_coverage_job.py",
         digest_config=Job.CacheDigestConfig(
             include_paths=["./ci/jobs/merge_llvm_coverage_job.py"],
