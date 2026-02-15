@@ -142,7 +142,7 @@ common_stress_job_config = Job.Config(
             "./ci/jobs/scripts/log_parser.py",
         ],
     ),
-    timeout=3600 * 2,
+    timeout=3600 * 3,
 )
 common_integration_test_job_config = Job.Config(
     name=JobNames.INTEGRATION,

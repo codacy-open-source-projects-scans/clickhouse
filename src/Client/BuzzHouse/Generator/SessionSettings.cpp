@@ -1568,7 +1568,7 @@ void loadFuzzerServerSettings(const FuzzConfig & fc)
               CHSetting(
                   [&](RandomGenerator & rg, FuzzConfig &)
                   {
-                      /// The first release with the new analyzer enabled
+                      /// The first release with the analyzer enabled
                       const uint32_t minYear = 24;
                       const uint32_t minMonth = 3;
                       const std::chrono::year_month_day ymd{std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};

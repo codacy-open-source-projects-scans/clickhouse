@@ -1273,6 +1273,11 @@ bool DatabaseReplicated::checkDigestValid(const ContextPtr & local_context) cons
     if (!local_context->getZooKeeperMetadataTransaction() && (!ddl_worker || !ddl_worker->isCurrentlyActive()))
         return true;
 
+    /// SYSTEM RESTART REPLICA temporarily removes a table from the in-memory tables map
+    /// without updating tables_metadata_digest, so the check would produce a false mismatch.
+    if (tables_being_restarted.load() > 0)
+        return true;
+
     UInt64 local_digest = 0;
     {
         std::lock_guard lock{mutex};
