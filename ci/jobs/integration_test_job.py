@@ -14,8 +14,8 @@ from ci.jobs.scripts.integration_tests_configs import (
     get_optimal_test_batch,
 )
 from ci.praktika.info import Info
-from ci.praktika.result import Result, ResultTranslator
-from ci.praktika.utils import ContextManager, Shell, Utils
+from ci.praktika.result import Result
+from ci.praktika.utils import Shell, Utils
 
 repo_dir = Utils.cwd()
 temp_path = f"{repo_dir}/ci/tmp"
@@ -271,7 +271,7 @@ def run_pytest_and_collect_results(command: str, env: str, report_name: str) -> 
     if "!!!!!!! xdist.dsession.Interrupted: session-timeout:" in tail(
         f"{temp_path}/{report_name}.log"
     ):
-        test_result.info = "[ERROR] session-timeout occurred during test execution"
+        test_result.info = "ERROR: session-timeout occurred during test execution"
         assert test_result.status == Result.Status.ERROR
         test_result.results.append(
             Result(

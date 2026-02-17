@@ -197,10 +197,8 @@ def should_skip_job(job_name):
         and Labels.CI_PERFORMANCE not in _info_cache.pr_labels
         and JobNames.PERFORMANCE in job_name
         and "arm" in job_name
+        and _info_cache.pr_number  # run all performance jobs on master
     ):
-        if "release_base" in job_name and not _info_cache.pr_number:
-            # comparison with the latest release merge base - do not skip on master
-            return False, ""
         return True, "Skipped, not labeled with 'pr-performance'"
 
     # If only the functional tests script changed, run only the first batch of stateless tests
