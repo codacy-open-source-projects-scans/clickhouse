@@ -1332,8 +1332,7 @@ bool applyDeterministicDagToColumn(
     DataTypePtr & out_type)
 {
     ColumnPtr input_column = in_column->convertToFullIfNeeded();
-    DataTypePtr input_type = removeLowCardinality(in_type);
-    const DataTypePtr dag_input_type = removeLowCardinality(dag.input_type);
+    DataTypePtr input_type = recursiveRemoveLowCardinality(in_type);
 
     /// This is the final check for the output column after DAG execution:
     /// - materialize output column (Const/LowCardinality)
@@ -1342,7 +1341,7 @@ bool applyDeterministicDagToColumn(
     auto finalize_output_column_and_type = [&](ColumnPtr & column, DataTypePtr & type) -> bool
     {
         column = column->convertToFullIfNeeded();
-        type = removeLowCardinality(type);
+        type = recursiveRemoveLowCardinality(type);
 
         if (column->isNullable())
         {
@@ -1387,7 +1386,7 @@ bool applyDeterministicDagToColumn(
         return true;
     };
 
-    if (!input_type->equals(*dag_input_type))
+    if (!input_type->equals(*dag.input_type))
     {
         /// Fast-path: consume leading CAST(...) that are no-op for current type
         /// or can be applied directly to the CAST result type. This avoids the
@@ -1436,7 +1435,7 @@ bool applyDeterministicDagToColumn(
             if (!cast_arg || cast_arg->type != ActionsDAG::ActionType::INPUT || cast_arg->result_name != input_name)
                 return false;
 
-            const auto cast_result_type = removeLowCardinality(output_node->result_type);
+            const auto cast_result_type = recursiveRemoveLowCardinality(output_node->result_type);
 
             out_column = input_column;
             out_type = input_type;
@@ -1450,7 +1449,7 @@ bool applyDeterministicDagToColumn(
         if (try_apply_direct_cast_fast_path())
             return true;
 
-        if (!cast_without_nulls(input_column, input_type, dag_input_type))
+        if (!cast_without_nulls(input_column, input_type, dag.input_type))
             return false;
     }
 

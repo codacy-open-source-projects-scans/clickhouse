@@ -3125,6 +3125,21 @@ but the query will fail.
 Maximum size of query syntax tree in number of nodes after expansion of aliases and the asterisk.
 )", 0) \
     \
+    DECLARE(Float, ast_fuzzer_runs, 0, R"(
+Enables the server-side AST fuzzer that runs randomized queries after each normal query, discarding their results.
+- 0: disabled (default).
+- A value between 0 and 1 (exclusive): probability of running a single fuzzed query.
+- A value >= 1: the number of fuzzed queries to run per normal query.
+
+The fuzzer accumulates AST fragments from all queries across all sessions, producing increasingly interesting mutations over time. Fuzzed queries that fail are silently discarded; results are never returned to the client.
+)", EXPERIMENTAL) \
+    DECLARE(Bool, ast_fuzzer_any_query, false, R"(
+When false (default), the server-side AST fuzzer (controlled by `ast_fuzzer_runs`) only fuzzes read-only queries (SELECT, EXPLAIN, SHOW, DESCRIBE, EXISTS). When true, all query types including DDL and INSERT are fuzzed.
+)", EXPERIMENTAL) \
+    DECLARE(Bool, allow_fuzz_query_functions, false, R"(
+Enables the `fuzzQuery` function that applies random AST mutations to a query string.
+)", EXPERIMENTAL) \
+    \
     DECLARE(UInt64, readonly, 0, R"(
 0 - no read-only restrictions. 1 - only read requests, as well as changing explicitly allowed settings. 2 - only read requests, as well as changing settings, except for the 'readonly' setting.
 )", 0) \
@@ -7305,6 +7320,15 @@ See [Allocation Profiling](/operations/allocation-profiling))", 0) \
     DECLARE(Bool, jemalloc_collect_profile_samples_in_trace_log, false, R"(
 Collect jemalloc allocation and deallocation samples in trace log.
     )", 0) \
+    DECLARE(JemallocProfileFormat, jemalloc_profile_text_output_format, JemallocProfileFormat::Collapsed, R"(
+Output format for jemalloc heap profile in system.jemalloc_profile_text table. Can be: 'raw' (raw profile), 'symbolized' (jeprof format with symbols), or 'collapsed' (FlameGraph format).
+    )", 0) \
+    DECLARE(Bool, jemalloc_profile_text_symbolize_with_inline, true, R"(
+Whether to include inline frames when symbolizing jemalloc heap profile. When enabled, inline frames are included which can slow down symbolization process drastically; when disabled, they are skipped. Only affects 'symbolized' and 'collapsed' output formats.
+    )", 0) \
+    DECLARE(Bool, jemalloc_profile_text_collapsed_use_count, false, R"(
+When using the 'collapsed' output format for jemalloc heap profile, aggregate by allocation count instead of bytes. When false (default), each stack is weighted by live bytes; when true, by live allocation count.
+    )", 0) \
     DECLARE_WITH_ALIAS(Int32, os_threads_nice_value_query, 0, R"(
 Linux nice value for query processing threads. Lower values mean higher CPU priority.
 
@@ -7539,7 +7563,7 @@ Use Shuffle aggregation strategy instead of PartialAggregation + Merge in distri
 Filter left side by set of JOIN keys collected from the right side at runtime.
 )", BETA) \
     DECLARE(UInt64, join_runtime_filter_exact_values_limit, 10000, R"(
-Maximum number of elements in runtime filter that are stored as is in a set, when this threshold is exceeded if switches to bloom filter.
+Maximum number of elements in runtime filter that are stored as is in a set, when this threshold is exceeded it switches to bloom filter.
 )", EXPERIMENTAL) \
     DECLARE(UInt64, join_runtime_bloom_filter_bytes, 512_KiB, R"(
 Size in bytes of a bloom filter used as JOIN runtime filter (see enable_join_runtime_filters setting).

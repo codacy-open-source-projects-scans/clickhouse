@@ -432,7 +432,7 @@ def main():
             commands.append(CH.enable_thread_fuzzer_config)
 
         os.environ["MALLOC_CONF"] = (
-            f"prof_active:true,prof_prefix:{temp_dir}/jemalloc_profiles/clickhouse.jemalloc"
+            f"prof_prefix:{temp_dir}/jemalloc_profiles/clickhouse.jemalloc"
         )
 
         if not is_coverage:
