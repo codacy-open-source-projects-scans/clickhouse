@@ -494,7 +494,8 @@ void StorageObjectStorage::read(
                                   || (read_from_format_info.requested_columns.empty()
                                       && !read_from_format_info.prewhere_info
                                       && !read_from_format_info.row_level_filter))
-        && settings[Setting::optimize_count_from_files];
+        && settings[Setting::optimize_count_from_files]
+        && !VirtualColumnUtils::hasRowDependentVirtualColumns(read_from_format_info.requested_virtual_columns);
 
     auto modified_format_settings{format_settings};
     if (!modified_format_settings.has_value())
