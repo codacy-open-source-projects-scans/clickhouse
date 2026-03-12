@@ -81,7 +81,8 @@ public:
     Cluster(
         const Settings & settings,
         const std::vector<std::vector<DatabaseReplicaInfo>> & infos,
-        const ClusterConnectionParameters & params);
+        const ClusterConnectionParameters & params,
+        bool internal_replication = false);
 
     Cluster(const Cluster &)= delete;
     Cluster & operator=(const Cluster &) = delete;
@@ -308,7 +309,6 @@ private:
         UInt32 current_shard_num,
         String current_shard_name = "",
         UInt32 weight = 1,
-        ShardInfoInsertPathForInternalReplication insert_paths = {},
         bool internal_replication = false);
 
     /// Inter-server secret
