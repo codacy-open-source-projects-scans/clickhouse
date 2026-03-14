@@ -843,7 +843,10 @@ bool MergeTreeIndexConditionText::tryPrepareSetForTextSearch(
         /// The condition with such a predicate will be always true on granule.
         /// See MergeTreeIndexGranuleText::hasAllQueryTokensOrEmpty.
         if (ref.empty())
+        {
+            out.text_search_queries.clear();
             return false;
+        }
 
         std::vector<String> tokens;
         tokenizer->stringToTokens(ref.data(), ref.size(), tokens);
