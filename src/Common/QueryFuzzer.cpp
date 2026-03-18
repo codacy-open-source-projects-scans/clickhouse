@@ -2961,7 +2961,15 @@ void QueryFuzzer::fuzz(ASTPtr & ast)
     {
         /// Toggle CREATE ↔ ATTACH to exercise the attach path with the same schema
         if (fuzz_rand() % 100 == 0)
+        {
             create_query->attach = !create_query->attach;
+            /// `FROM 'path'` is only valid for ATTACH, not CREATE
+            if (!create_query->attach)
+            {
+                create_query->has_attach_from_path = false;
+                create_query->attach_from_path.clear();
+            }
+        }
         fuzzCreateQuery(*create_query);
     }
     else if (auto * drop_query = typeid_cast<ASTDropQuery *>(ast.get()))
