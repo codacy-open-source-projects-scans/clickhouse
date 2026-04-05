@@ -3341,6 +3341,7 @@ void ReadFromMergeTree::initializePipeline(QueryPipelineBuilder & pipeline, cons
     }
 
     shared_virtual_fields.emplace("_sample_factor", result.sampling.used_sample_factor);
+    shared_virtual_fields.emplace("_table", data.getStorageID().getTableName());
 
     LOG_DEBUG(
         log,
