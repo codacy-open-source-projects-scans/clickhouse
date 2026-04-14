@@ -122,6 +122,8 @@ public:
     {
         /// Show header of output ports.
         bool header = false;
+        /// Show remote pipelines for distributed query.
+        bool distributed = false;
     };
 
     JSONBuilder::ItemPtr explainPlan(const ExplainPlanOptions & options) const;
