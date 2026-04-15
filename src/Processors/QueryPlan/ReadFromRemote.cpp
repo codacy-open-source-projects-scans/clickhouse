@@ -1,4 +1,5 @@
 #include <Processors/QueryPlan/ReadFromRemote.h>
+#include <DataTypes/DataTypeString.h>
 
 #include <Analyzer/QueryNode.h>
 #include <Analyzer/TableNode.h>

@@ -1,4 +1,5 @@
 #include <Access/ViewDefinerDependencies.h>
+#include <DataTypes/DataTypeString.h>
 #include <Interpreters/Context_fwd.h>
 #include <Interpreters/InterpreterSelectQuery.h>
 #include <Interpreters/InterpreterSelectWithUnionQuery.h>

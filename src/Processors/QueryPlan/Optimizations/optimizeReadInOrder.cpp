@@ -1,8 +1,4 @@
-#include <Columns/IColumn.h>
-#include <DataTypes/DataTypeAggregateFunction.h>
-#include <Functions/IFunction.h>
 #include <Interpreters/ActionsDAG.h>
-#include <Interpreters/ArrayJoinAction.h>
 #include <Interpreters/InterpreterSelectQuery.h>
 #include <Interpreters/TableJoin.h>
 #include <Interpreters/ExpressionActions.h>
@@ -10,8 +6,6 @@
 #include <Parsers/ASTWindowDefinition.h>
 #include <Processors/QueryPlan/AggregatingStep.h>
 #include <Processors/QueryPlan/ArrayJoinStep.h>
-#include <Processors/QueryPlan/CreatingSetsStep.h>
-#include <Processors/QueryPlan/CubeStep.h>
 #include <Processors/QueryPlan/DistinctStep.h>
 #include <Processors/QueryPlan/ExpressionStep.h>
 #include <Processors/QueryPlan/FilterStep.h>
@@ -23,7 +17,6 @@
 #include <Processors/QueryPlan/ReadFromMergeTree.h>
 #include <Processors/QueryPlan/ReadFromRemote.h>
 #include <Processors/QueryPlan/SortingStep.h>
-#include <Processors/QueryPlan/TotalsHavingStep.h>
 #include <Processors/QueryPlan/UnionStep.h>
 #include <Processors/QueryPlan/WindowStep.h>
 #include <Storages/ReadInOrderOptimizer.h>

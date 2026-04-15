@@ -11,7 +11,6 @@
 #include <Interpreters/ExpressionActionsSettings.h>
 #include <IO/WriteBufferFromFile.h>
 #include <IO/ReadBufferFromFile.h>
-#include <DataTypes/DataTypesNumber.h>
 #include <Disks/StoragePolicy.h>
 #include <Processors/Merges/Algorithms/Graphite.h>
 #include <Storages/MergeTree/ActiveDataPartSet.h>

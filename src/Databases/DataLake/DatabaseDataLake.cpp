@@ -19,7 +19,6 @@
 
 #if USE_AVRO && USE_PARQUET
 
-#include <Access/Common/HTTPAuthenticationScheme.h>
 #include <Core/Settings.h>
 
 #include <Databases/DatabaseFactory.h>

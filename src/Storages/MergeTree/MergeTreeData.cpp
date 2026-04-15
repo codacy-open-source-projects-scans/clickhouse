@@ -1,4 +1,5 @@
 #include <Disks/DiskType.h>
+#include <DataTypes/DataTypeString.h>
 #include <Common/CurrentThread.h>
 #include <Storages/PartitionCommands.h>
 #include <Storages/MergeTree/MergeTreeData.h>

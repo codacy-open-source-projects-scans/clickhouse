@@ -1,4 +1,5 @@
 #include <memory>
+#include <DataTypes/DataTypesNumber.h>
 #include <IO/copyData.h>
 #include <Interpreters/TemporaryDataOnDisk.h>
 #include <Storages/StorageKeeperMap.h>

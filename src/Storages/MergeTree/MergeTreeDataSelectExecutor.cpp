@@ -1,4 +1,5 @@
 #include <optional>
+#include <DataTypes/DataTypeString.h>
 #include <Common/CurrentThread.h>
 #include <unordered_set>
 #include <boost/rational.hpp> /// For calculations related to sampling coefficients.
@@ -2014,6 +2015,8 @@ std::pair<MarkRanges, RangesInDataPartReadHints> MergeTreeDataSelectExecutor::fi
                 }
             }
         }
+
+        read_hints.index_granules[index_helper->index.name] = std::move(granule);
     }
     else if (bulk_filtering)
     {

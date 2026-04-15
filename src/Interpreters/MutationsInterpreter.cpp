@@ -1,4 +1,5 @@
 #include <Core/Settings.h>
+#include <DataTypes/DataTypeString.h>
 #include <Functions/FunctionFactory.h>
 #include <Functions/IFunction.h>
 #include <Interpreters/ExpressionActions.h>
