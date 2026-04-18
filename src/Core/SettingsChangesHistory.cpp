@@ -65,6 +65,18 @@ const VersionToSettingsChangesMap & getSettingsChangesHistory()
             {"highlight_max_matches_per_row", 10000, 10000, "New setting to limit the number of highlight matches per row to protect against excessive memory usage."},
             {"materialize_statistics_on_insert", true, false, "Disable building statistics on INSERT by default, rely on merges instead"},
             {"enable_join_transitive_predicates", false, false, "New setting to infer transitive equi-join predicates for join order optimization."},
+            {"enable_join_fixed_hash_table_conversion", false, true, "New setting to enable converting the hash table to a flat array for joins when the key is a single integer with a small value range."},
+            {"allow_experimental_ai_functions", false, false, "New setting"},
+            {"ai_function_request_timeout_sec", 60, 60, "New setting"},
+            {"ai_function_max_retries", 0, 0, "New setting"},
+            {"ai_function_retry_initial_delay_ms", 1000, 1000, "New setting"},
+            {"ai_function_throw_on_error", true, true, "New setting"},
+            {"ai_function_max_input_tokens_per_query", 1000000, 1000000, "New setting"},
+            {"ai_function_max_output_tokens_per_query", 500000, 500000, "New setting"},
+            {"ai_function_max_api_calls_per_query", 0, 0, "New setting"},
+            {"ai_function_throw_on_quota_exceeded", true, true, "New setting"},
+            {"materialize_statistics_on_insert", true, false, "Disable building statistics on INSERT by default, rely on merges instead"},
+            {"enable_join_transitive_predicates", false, false, "New setting to infer transitive equi-join predicates for join order optimization."},
         });
         addSettingsChanges(settings_changes_history, "26.3",
         {
