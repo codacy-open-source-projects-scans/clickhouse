@@ -188,6 +188,11 @@
             background-color: var(--info-background);
             font-family: 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
         }
+        .info-text pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
         #info-content {
             text-align: left;
             padding: 10px;
@@ -327,7 +332,7 @@
         }
 
         .disabled {
-            white-space: pre;
+            white-space: pre-wrap;
         }
 
         .status-column span[style*="pointer"] {
