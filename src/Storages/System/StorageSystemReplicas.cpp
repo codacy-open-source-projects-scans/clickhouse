@@ -1,4 +1,5 @@
 #include <future>
+#include <Storages/System/SystemTableSourceRegistry.h>
 #include <memory>
 
 #include <Columns/ColumnString.h>
@@ -10,6 +11,7 @@
 #include <DataTypes/DataTypeDateTime.h>
 #include <DataTypes/DataTypeMap.h>
 #include <Storages/System/StorageSystemReplicas.h>
+#include <Storages/StorageProxy.h>
 #include <Storages/StorageReplicatedMergeTree.h>
 #include <Storages/VirtualColumnUtils.h>
 #include <Storages/System/StatusRequestsPool.h>
@@ -192,11 +194,8 @@ void StorageSystemReplicas::readImpl(
         const bool check_access_for_tables = check_access_for_databases && !access->isGranted(AccessType::SHOW_TABLES, db.first);
         for (auto iterator = db.second->getTablesIterator(context); iterator->isValid(); iterator->next())
         {
-            const auto & table = iterator->table();
+            auto table = castStorage<StorageReplicatedMergeTree>(iterator->table(), DeferredTable::Skip);
             if (!table)
-                continue;
-
-            if (!dynamic_cast<const StorageReplicatedMergeTree *>(table.get()))
                 continue;
             if (check_access_for_tables && !access->isGranted(AccessType::SHOW_TABLES, db.first, iterator->name()))
                 continue;
@@ -230,7 +229,7 @@ void StorageSystemReplicas::readImpl(
     query_plan.addStep(std::move(reading));
 }
 
-class SystemReplicasSource : public ISource
+class SystemReplicasSource final : public ISource
 {
 public:
     SystemReplicasSource(
@@ -388,7 +387,7 @@ Chunk SystemReplicasSource::generate()
             }
         }
 
-        const TStatus * status;
+        const TStatus * status = nullptr;
         try
         {
             status = &futures[i].get();
@@ -397,7 +396,8 @@ Chunk SystemReplicasSource::generate()
         {
             if (e.code() == ErrorCodes::ABORTED)
             {
-                tryLogCurrentException(logger, "Received the ABORTED error while trying to get the status of a storage, this is likely because it has been shut down");
+                /// The table has been shut down or dropped, so its row is skipped instead of being reported as an error.
+                LOG_DEBUG(logger, "Cannot get the status of a storage: {}", e.displayText());
                 continue;
             }
             throw;
@@ -465,3 +465,6 @@ Chunk SystemReplicasSource::generate()
 }
 
 }
+
+/// Register the source file of this system table for `system.documentation`.
+namespace DB { REGISTER_SYSTEM_TABLE_SOURCE(StorageSystemReplicas) }
